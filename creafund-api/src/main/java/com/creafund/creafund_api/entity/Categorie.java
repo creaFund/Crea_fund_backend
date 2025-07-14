@@ -11,6 +11,5 @@ public class Categorie {
     @Id
     @GeneratedValue
     private Long id;
-
     private String nom;
 }
