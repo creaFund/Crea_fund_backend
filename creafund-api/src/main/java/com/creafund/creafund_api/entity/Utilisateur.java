@@ -23,4 +23,8 @@ public class Utilisateur {
 
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<Role> roles;
+
+    @OneToMany(mappedBy = "createur")
+    private Set<Projet> projets;
+
 }
