@@ -1,5 +1,7 @@
 package com.creafund.creafund_api.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -25,6 +27,7 @@ public class Utilisateur {
     private Set<Role> roles;
 
     @OneToMany(mappedBy = "createur")
+    @JsonIgnore
     private Set<Projet> projets;
 
 }

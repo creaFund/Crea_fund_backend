@@ -1,5 +1,6 @@
 package com.creafund.creafund_api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -24,5 +25,6 @@ public class Projet {
 
     @ManyToOne
     @JoinColumn(name = "utilisateur_id") // Nom de la colonne dans la table projet
+    @JsonIgnoreProperties({"projets", "roles"}) // ou selon les attributs de Utilisateur à ignorer
     private Utilisateur createur; // <-- L'utilisateur qui a créé ce projet
 }
