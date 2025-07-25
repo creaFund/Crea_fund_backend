@@ -1,5 +1,6 @@
 package com.creafund.creafund_api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -19,5 +20,7 @@ public class Contrepartie {
     private double quantiteDisponible;
 
     @ManyToOne
+    @JsonIgnoreProperties("contreparties") // éviter la récursivité si tu exposes l’objet
     private Projet projet;
+
 }
