@@ -1,12 +1,4 @@
-# Étape 1 : Installer Maven sur OpenJDK 22
-FROM openjdk:22-jdk-slim AS build
-
-# Installer Maven manuellement
-RUN apt-get update && \
-    apt-get install -y maven && \
-    rm -rf /var/lib/apt/lists/*
-
-# Étape 1 : Build de l'application avec Maven
+# Étape 1 : Build de l'application avec Maven et JDK 22
 FROM maven:3.9.6-eclipse-temurin-22 AS build
 
 WORKDIR /app
@@ -16,7 +8,10 @@ COPY creafund-api/pom.xml .
 COPY creafund-api/.mvn .mvn
 COPY creafund-api/mvnw .
 
-# Télécharger les dépendances pour accélérer le build
+# Donner les permissions d'exécution au wrapper Maven
+RUN chmod +x mvnw
+
+# Télécharger les dépendances pour accélérer les builds
 RUN ./mvnw dependency:go-offline
 
 # Copier le reste du code
@@ -38,4 +33,3 @@ EXPOSE 8080
 
 # Lancer l'application en prenant en compte la variable PORT de Render
 ENTRYPOINT ["sh", "-c", "java -jar backend.jar --server.port=${PORT:-8080}"]
-
