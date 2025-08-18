@@ -16,7 +16,7 @@ public class S3Config {
     @Value("${cloud.aws.region.static}")
     private String region;
 
-    @Bean(name = "s3ClientLocal")
+    @Bean
     @Profile("local")
     public S3Client s3ClientLocal(@Value("${AWS_ACCESS_KEY_ID}") String accessKey,
                                   @Value("${AWS_SECRET_ACCESS_KEY}") String secretKey) {
@@ -27,7 +27,7 @@ public class S3Config {
                 .build();
     }
 
-    @Bean(name = "s3ClientDev")
+    @Bean
     @Profile("dev")
     public S3Client s3ClientDev() {
         return S3Client.builder()
