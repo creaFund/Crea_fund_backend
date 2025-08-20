@@ -27,7 +27,7 @@ public class ProjetController extends CrudController<Projet, Long> {
         return ResponseEntity.ok(projets);
     }
 
-    // 👇 Ajoute cette méthode pour créer un projet avec contreparties
+    // Ajoute cette méthode pour créer un projet avec contreparties
     @PostMapping("/creer-avec-contreparties")
     public ResponseEntity<Projet> creerAvecContreparties(@RequestBody ProjetDto dto) {
         Projet projetCree = projetService.creerProjetAvecContreparties(dto);
