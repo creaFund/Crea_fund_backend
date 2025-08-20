@@ -27,6 +27,10 @@ public class PrestationService {
     @Autowired
     private UtilisateurRepository utilisateurRepository;
 
+    public List<Prestation> getPrestationByIdUtilisateurs(Long prestataireId){
+        return prestationRepository.findByPrestataireId(prestataireId);
+    }
+
     public Prestation creerPrestationAvecPacks(PrestationDto dto) {
         Prestation prestation = new Prestation();
         prestation.setNom(dto.getNom());
