@@ -2,16 +2,21 @@ package com.creafund.creafund_api.services;
 
 import com.creafund.creafund_api.Dto.ProjetDto;
 import com.creafund.creafund_api.Dto.ContrepartieDto;
+import com.creafund.creafund_api.aws.S3Service;
 import com.creafund.creafund_api.entity.Categorie;
 import com.creafund.creafund_api.entity.Contrepartie;
+import com.creafund.creafund_api.entity.Media;
 import com.creafund.creafund_api.entity.Projet;
 import com.creafund.creafund_api.entity.Utilisateur;
 import com.creafund.creafund_api.repository.CategorieRepository;
+import com.creafund.creafund_api.repository.MediaRepository;
 import com.creafund.creafund_api.repository.ProjetRepository;
 import com.creafund.creafund_api.repository.UtilisateurRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +34,12 @@ public class ProjetService extends CrudServiceImpl<Projet, Long> {
     @Autowired
     private UtilisateurRepository utilisateurRepository;
 
+    @Autowired
+    private MediaRepository mediaRepository;
+
+    @Autowired
+    private S3Service s3Service;
+
     public ProjetService(ProjetRepository repository) {
         super(repository);
     }
@@ -37,7 +48,10 @@ public class ProjetService extends CrudServiceImpl<Projet, Long> {
         return projetRepository.findByCreateurId(utilisateurId);
     }
 
-    public Projet creerProjetAvecContreparties(ProjetDto dto) {
+    /**
+     * Création projet (avec ou sans contreparties) + upload fichiers vers S3
+     */
+    public Projet creerProjetAvecContreparties(ProjetDto dto, MultipartFile[] fichiers) throws IOException {
         Projet projet = new Projet();
         projet.setTitre(dto.getTitre());
         projet.setDescription(dto.getDescription());
@@ -46,18 +60,21 @@ public class ProjetService extends CrudServiceImpl<Projet, Long> {
         projet.setStatut(false);
         projet.setAvecContrepartie(dto.isAvecContrepartie());
 
+        // Catégorie
         Optional<Categorie> categorieOpt = categorieRepository.findById(dto.getCategorieId());
         if (categorieOpt.isEmpty()) {
             throw new RuntimeException("Catégorie introuvable");
         }
         projet.setCategorie(categorieOpt.get());
 
+        // Créateur
         Optional<Utilisateur> utilisateurOpt = utilisateurRepository.findById(dto.getCreateurId());
         if (utilisateurOpt.isEmpty()) {
             throw new RuntimeException("Créateur introuvable");
         }
         projet.setCreateur(utilisateurOpt.get());
 
+        // Contreparties
         if (dto.isAvecContrepartie() && dto.getContreparties() != null) {
             List<Contrepartie> contreparties = new ArrayList<>();
             for (ContrepartieDto cpDto : dto.getContreparties()) {
@@ -72,6 +89,26 @@ public class ProjetService extends CrudServiceImpl<Projet, Long> {
             projet.setContreparties(contreparties);
         }
 
-        return projetRepository.save(projet);
+        // Sauvegarde projet
+        Projet savedProjet = projetRepository.save(projet);
+
+        // Upload fichiers (si présents)
+        if (fichiers != null && fichiers.length > 0) {
+            for (MultipartFile fichier : fichiers) {
+                if (!fichier.isEmpty()) {
+                    S3Service.S3ObjectInfo uploaded = s3Service.uploadFile("projets/" + savedProjet.getId(), fichier, false);
+
+                    Media media = new Media();
+                    media.setFileName(fichier.getOriginalFilename());
+                    media.setUrl(uploaded.url()); // URL S3 du fichier
+                    media.setType(fichier.getContentType());
+                    media.setProjet(savedProjet);
+
+                    mediaRepository.save(media);
+                }
+            }
+        }
+
+        return savedProjet;
     }
 }
