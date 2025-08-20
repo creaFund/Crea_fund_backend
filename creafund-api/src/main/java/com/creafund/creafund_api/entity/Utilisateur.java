@@ -30,4 +30,8 @@ public class Utilisateur {
     @JsonIgnore
     private Set<Projet> projets;
 
+    @OneToMany(mappedBy = "prestataire")
+    @JsonIgnore
+    private Set<Prestation> prestations;
+
 }
