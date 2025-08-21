@@ -1,13 +1,9 @@
 package com.creafund.creafund_api.services;
 
-import com.creafund.creafund_api.Dto.ProjetDto;
 import com.creafund.creafund_api.Dto.ContrepartieDto;
+import com.creafund.creafund_api.Dto.ProjetDto;
 import com.creafund.creafund_api.aws.S3Service;
-import com.creafund.creafund_api.entity.Categorie;
-import com.creafund.creafund_api.entity.Contrepartie;
-import com.creafund.creafund_api.entity.Media;
-import com.creafund.creafund_api.entity.Projet;
-import com.creafund.creafund_api.entity.Utilisateur;
+import com.creafund.creafund_api.entity.*;
 import com.creafund.creafund_api.repository.CategorieRepository;
 import com.creafund.creafund_api.repository.MediaRepository;
 import com.creafund.creafund_api.repository.ProjetRepository;
@@ -44,13 +40,6 @@ public class ProjetService extends CrudServiceImpl<Projet, Long> {
         super(repository);
     }
 
-    public List<Projet> getProjetsParUtilisateur(Long utilisateurId) {
-        return projetRepository.findByCreateurId(utilisateurId);
-    }
-
-    /**
-     * Création projet (avec ou sans contreparties) + upload fichiers vers S3
-     */
     public Projet creerProjetAvecContreparties(ProjetDto dto, MultipartFile[] fichiers) throws IOException {
         Projet projet = new Projet();
         projet.setTitre(dto.getTitre());
@@ -60,14 +49,12 @@ public class ProjetService extends CrudServiceImpl<Projet, Long> {
         projet.setStatut(false);
         projet.setAvecContrepartie(dto.isAvecContrepartie());
 
-        // Catégorie
         Optional<Categorie> categorieOpt = categorieRepository.findById(dto.getCategorieId());
         if (categorieOpt.isEmpty()) {
             throw new RuntimeException("Catégorie introuvable");
         }
         projet.setCategorie(categorieOpt.get());
 
-        // Créateur
         Optional<Utilisateur> utilisateurOpt = utilisateurRepository.findById(dto.getCreateurId());
         if (utilisateurOpt.isEmpty()) {
             throw new RuntimeException("Créateur introuvable");
@@ -89,18 +76,18 @@ public class ProjetService extends CrudServiceImpl<Projet, Long> {
             projet.setContreparties(contreparties);
         }
 
-        // Sauvegarde projet
         Projet savedProjet = projetRepository.save(projet);
 
-        // Upload fichiers (si présents)
         if (fichiers != null && fichiers.length > 0) {
             for (MultipartFile fichier : fichiers) {
                 if (!fichier.isEmpty()) {
-                    S3Service.S3ObjectInfo uploaded = s3Service.uploadFile("projets/" + savedProjet.getId(), fichier, false);
+                    String key = "projets/" + savedProjet.getId() + "/" + fichier.getOriginalFilename();
+
+                    S3Service.S3ObjectInfo uploaded = s3Service.uploadFile(key, fichier, false);
 
                     Media media = new Media();
                     media.setFileName(fichier.getOriginalFilename());
-                    media.setUrl(uploaded.url()); // URL S3 du fichier
+                    media.setUrl(uploaded.url()); // URL S3 du fichier uploadé
                     media.setType(fichier.getContentType());
                     media.setProjet(savedProjet);
 
@@ -111,4 +98,9 @@ public class ProjetService extends CrudServiceImpl<Projet, Long> {
 
         return savedProjet;
     }
+
+    public List<Projet> getProjetsParUtilisateur(Long utilisateurId) {
+        return projetRepository.findByCreateurId(utilisateurId);
+    }
+
 }
