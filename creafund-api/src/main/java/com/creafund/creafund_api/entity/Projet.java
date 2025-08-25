@@ -36,6 +36,7 @@ public class Projet {
     private boolean avecContrepartie; // <-- indique si le projet en propose ou non
 
     @OneToMany(mappedBy = "projet", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("projet")
     private List<Media> medias = new ArrayList<>();
 
 
