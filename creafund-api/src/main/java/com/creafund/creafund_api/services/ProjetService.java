@@ -81,9 +81,10 @@ public class ProjetService extends CrudServiceImpl<Projet, Long> {
         if (fichiers != null && fichiers.length > 0) {
             for (MultipartFile fichier : fichiers) {
                 if (!fichier.isEmpty()) {
-                    String key = "projets/" + savedProjet.getId() + "/" + fichier.getOriginalFilename();
+                    // Utiliser juste le prefix = "projets/{id}"
+                    String prefix = "projets/" + savedProjet.getId();
 
-                    S3Service.S3ObjectInfo uploaded = s3Service.uploadFile(key, fichier, false);
+                    S3Service.S3ObjectInfo uploaded = s3Service.uploadFile(prefix, fichier, false);
 
                     Media media = new Media();
                     media.setFileName(fichier.getOriginalFilename());
@@ -95,6 +96,7 @@ public class ProjetService extends CrudServiceImpl<Projet, Long> {
                 }
             }
         }
+
 
         return savedProjet;
     }
