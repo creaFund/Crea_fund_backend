@@ -78,23 +78,7 @@ public class ProjetService extends CrudServiceImpl<Projet, Long> {
 
         Projet savedProjet = projetRepository.save(projet);
 
-        if (fichiers != null && fichiers.length > 0) {
-            for (MultipartFile fichier : fichiers) {
-                if (!fichier.isEmpty()) {
-                    String key = "projets/" + savedProjet.getId() + "/" + fichier.getOriginalFilename();
 
-                    S3Service.S3ObjectInfo uploaded = s3Service.uploadFile(key, fichier, false);
-
-                    Media media = new Media();
-                    media.setFileName(fichier.getOriginalFilename());
-                    media.setUrl(uploaded.url()); // URL S3 du fichier uploadé
-                    media.setType(fichier.getContentType());
-                    media.setProjet(savedProjet);
-
-                    mediaRepository.save(media);
-                }
-            }
-        }
 
         return savedProjet;
     }
