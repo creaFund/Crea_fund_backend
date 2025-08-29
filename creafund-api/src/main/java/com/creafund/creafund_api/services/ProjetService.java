@@ -76,11 +76,11 @@ public class ProjetService extends CrudServiceImpl<Projet, Long> {
             projet.setContreparties(contreparties);
         }
 
-        // 1. Sauvegarder projet d'abord pour générer un ID
+        // Après avoir sauvegardé le projet
         Projet savedProjet = projetRepository.save(projet);
 
-        // 2. Upload et enregistrement médias en lien avec savedProjet
         if (fichiers != null && fichiers.length > 0) {
+            List<Media> mediasToAdd = new ArrayList<>();
             for (MultipartFile fichier : fichiers) {
                 if (!fichier.isEmpty()) {
                     String key = "projets/" + savedProjet.getId() + "/" + fichier.getOriginalFilename();
@@ -93,12 +93,14 @@ public class ProjetService extends CrudServiceImpl<Projet, Long> {
                     media.setProjet(savedProjet);
 
                     mediaRepository.save(media);
-
-                    // Ajouter à la collection médias du projet sauvegardé
-                    savedProjet.getMedias().add(media);
+                    mediasToAdd.add(media);
                 }
             }
+            // Ajouter tous les médias en une fois après la boucle
+            savedProjet.getMedias().addAll(mediasToAdd);
+            projetRepository.save(savedProjet);
         }
+
 
         // Optionnel : sauvegarder à nouveau projet pour lien médias
         savedProjet = projetRepository.save(savedProjet);
