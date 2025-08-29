@@ -11,3 +11,4 @@ public class CategorieService extends CrudServiceImpl<Categorie, Long> {
         super(repository);
     }
 }
+
