@@ -21,4 +21,17 @@ public class Media {
     @ManyToOne
     @JoinColumn(name = "prestation_id")
     private Prestation prestation;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Media media = (Media) o;
+        return id != null && id.equals(media.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return 31;
+    }
 }

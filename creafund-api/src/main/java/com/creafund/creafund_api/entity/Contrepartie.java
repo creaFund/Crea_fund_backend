@@ -23,4 +23,17 @@ public class Contrepartie {
     @JsonIgnoreProperties("contreparties") // éviter la récursivité si tu exposes l’objet
     private Projet projet;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Contrepartie that = (Contrepartie) o;
+        return id != null && id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return 31;
+    }
+
 }
