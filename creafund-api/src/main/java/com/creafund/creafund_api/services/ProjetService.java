@@ -76,30 +76,32 @@ public class ProjetService extends CrudServiceImpl<Projet, Long> {
             projet.setContreparties(contreparties);
         }
 
+        // 1. Sauvegarder projet d'abord pour générer un ID
+        Projet savedProjet = projetRepository.save(projet);
+
+        // 2. Upload et enregistrement médias en lien avec savedProjet
         if (fichiers != null && fichiers.length > 0) {
             for (MultipartFile fichier : fichiers) {
                 if (!fichier.isEmpty()) {
-                    // Générer la clé pour S3 (ex : dossiers par projet)
-                    String key = "projets/" + projet.getId() + "/" + fichier.getOriginalFilename();
+                    String key = "projets/" + savedProjet.getId() + "/" + fichier.getOriginalFilename();
                     S3Service.S3ObjectInfo uploaded = s3Service.uploadFile(key, fichier, false);
 
                     Media media = new Media();
                     media.setFileName(fichier.getOriginalFilename());
                     media.setUrl(uploaded.url());
                     media.setType(fichier.getContentType());
-                    media.setProjet(projet);
+                    media.setProjet(savedProjet);
 
-                    mediaRepository.save(media);  // Sauvegarder Media
+                    mediaRepository.save(media);
 
-                    // Ajouter à la collection des médias du projet
-                    projet.getMedias().add(media);
+                    // Ajouter à la collection médias du projet sauvegardé
+                    savedProjet.getMedias().add(media);
                 }
             }
         }
 
-        Projet savedProjet = projetRepository.save(projet);
-
-
+        // Optionnel : sauvegarder à nouveau projet pour lien médias
+        savedProjet = projetRepository.save(savedProjet);
 
         return savedProjet;
     }
@@ -109,3 +111,4 @@ public class ProjetService extends CrudServiceImpl<Projet, Long> {
     }
 
 }
+
