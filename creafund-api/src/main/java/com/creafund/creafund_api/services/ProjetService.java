@@ -76,41 +76,15 @@ public class ProjetService extends CrudServiceImpl<Projet, Long> {
             projet.setContreparties(contreparties);
         }
 
-        // 1. Sauvegarde initiale projet pour avoir un ID
         Projet savedProjet = projetRepository.save(projet);
 
-        if (fichiers != null && fichiers.length > 0) {
-            List<Media> mediasToAdd = new ArrayList<>();
 
-            // Créer les médias et les sauvegarder mais sans modifier collection persistante en boucle
-            for (MultipartFile fichier : fichiers) {
-                if (!fichier.isEmpty()) {
-                    String key = "projets/" + savedProjet.getId() + "/" + fichier.getOriginalFilename();
-                    S3Service.S3ObjectInfo uploaded = s3Service.uploadFile(key, fichier, false);
-
-                    Media media = new Media();
-                    media.setFileName(fichier.getOriginalFilename());
-                    media.setUrl(uploaded.url());
-                    media.setType(fichier.getContentType());
-                    media.setProjet(savedProjet);
-
-                    mediaRepository.save(media);
-                    mediasToAdd.add(media);
-                }
-            }
-
-            // Ajouter tous les médias en une seule opération à la collection persistante
-            savedProjet.getMedias().addAll(mediasToAdd);
-            projetRepository.save(savedProjet);
-        }
 
         return savedProjet;
     }
-
 
     public List<Projet> getProjetsParUtilisateur(Long utilisateurId) {
         return projetRepository.findByCreateurId(utilisateurId);
     }
 
 }
-
