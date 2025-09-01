@@ -44,7 +44,6 @@ public class ProjetController extends CrudController<Projet, Long> {
 
         // Conversion du JSON en DTO
         ProjetDto dto = objectMapper.readValue(projetJson, ProjetDto.class);
-
         // Appel au service
         Projet projetCree = projetService.creerProjetAvecContreparties(dto, fichiers);
 
