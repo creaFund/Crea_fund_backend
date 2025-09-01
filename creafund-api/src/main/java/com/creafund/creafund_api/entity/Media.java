@@ -1,5 +1,6 @@
 package com.creafund.creafund_api.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -16,6 +17,7 @@ public class Media {
 
     @ManyToOne
     @JoinColumn(name = "projet_id")
+    @JsonBackReference
     private Projet projet;
 
     @ManyToOne
