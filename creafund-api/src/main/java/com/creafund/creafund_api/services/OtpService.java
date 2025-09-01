@@ -5,11 +5,15 @@ import com.creafund.creafund_api.repository.OtpCodeRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 
 @Service
 public class OtpService {
+
+    private final Map<String, String> otpStorage = new HashMap<>();
 
     private final OtpCodeRepository otpCodeRepository;
 
@@ -41,5 +45,9 @@ public class OtpService {
             }
         }
         return false;
+    }
+
+    public void supprimerOtp(String identifiant) {
+        otpStorage.remove(identifiant);
     }
 }
