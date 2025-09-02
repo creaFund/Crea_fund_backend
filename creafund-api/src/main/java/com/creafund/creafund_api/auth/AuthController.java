@@ -3,8 +3,10 @@ package com.creafund.creafund_api.auth;
 import com.creafund.creafund_api.config.JwtUtils;
 import com.creafund.creafund_api.entity.Utilisateur;
 import com.creafund.creafund_api.repository.UtilisateurRepository;
+import com.creafund.creafund_api.services.EmailService;
 import com.creafund.creafund_api.services.NotificationService;
 import com.creafund.creafund_api.services.OtpService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -15,6 +17,9 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+
+    @Autowired
+    private EmailService emailService;
 
     private final UtilisateurRepository utilisateurRepository;
     private final OtpService otpService;
@@ -49,9 +54,19 @@ public class AuthController {
 
         String code = otpService.genererCode();
         otpService.enregistrerOtp(identifiant, code);
-        notificationService.envoyerCode(identifiant, code);
 
-        return ResponseEntity.ok("Code OTP envoyé");
+        if (identifiant.contains("@")) {
+            emailService.sendMail(
+                    identifiant,
+                    "Code de vérification",
+                    String.format("Bonjour %s,\n\nVotre code de vérification est : %s\n\nCordialement,\nL'équipe CreaFund",
+                            utilisateur.get().getPrenom(), code)
+            );
+        } else {
+            notificationService.envoyerCode(identifiant, code);
+        }
+
+        return ResponseEntity.ok("Code OTP envoyé à" + identifiant);
     }
 
     // ✅ 2. Vérification du code OTP + génération du JWT
@@ -76,6 +91,10 @@ public class AuthController {
         String token = jwtUtils.generateToken(identifiant);
         Map<String, String> response = new HashMap<>();
         response.put("token", token);
+
+        // Nettoyage du code après vérification
+        otpService.supprimerOtp(identifiant);
+
         return ResponseEntity.ok(response);
     }
 
