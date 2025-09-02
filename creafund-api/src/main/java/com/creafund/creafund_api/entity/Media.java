@@ -22,6 +22,7 @@ public class Media {
 
     @ManyToOne
     @JoinColumn(name = "prestation_id")
+    @JsonBackReference
     private Prestation prestation;
 
     @Override
