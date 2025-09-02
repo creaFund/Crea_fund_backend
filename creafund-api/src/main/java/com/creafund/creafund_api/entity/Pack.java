@@ -1,5 +1,6 @@
 package com.creafund.creafund_api.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -16,5 +17,19 @@ public class Pack {
     private int dureeEnJours;
 
     @ManyToOne
+    @JsonBackReference
     private Prestation prestation;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Pack that = (Pack) o;
+        return id != null && id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return 31;
+    }
 }

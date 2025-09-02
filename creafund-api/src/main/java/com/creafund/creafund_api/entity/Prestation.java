@@ -28,6 +28,7 @@ public class Prestation {
     private Utilisateur prestataire;
 
     @OneToMany(mappedBy = "prestation", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Pack> packs = new ArrayList<>();
 
     @OneToMany(mappedBy = "prestation", cascade = CascadeType.ALL, orphanRemoval = true)
