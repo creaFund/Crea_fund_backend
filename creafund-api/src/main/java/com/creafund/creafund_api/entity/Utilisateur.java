@@ -34,6 +34,10 @@ public class Utilisateur {
     @JsonIgnore
     private Set<Prestation> prestations;
 
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "photo_profil_id")
+    private Media photoProfil;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
