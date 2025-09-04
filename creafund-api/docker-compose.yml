@@ -12,8 +12,9 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/sene_db
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: 1234
-      email: creafundmali@gmail.com
-      motDePasse : kvoq fvsn suti wlug
+      EMAIL: creafundmail91@gmail.com
+      MOT_DE_PASSE: kvoq fvsn suti wlug
+      PORT_SMTP: 587
     depends_on:
       - mysql-db
 
