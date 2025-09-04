@@ -39,35 +39,24 @@ public class AuthController {
     @PostMapping("/demande-otp")
     public ResponseEntity<?> demanderOtp(@RequestBody Map<String, String> body) {
         String identifiant = body.get("identifiant");
-
         if (identifiant == null || identifiant.trim().isEmpty()) {
-            return ResponseEntity.badRequest().body("Identifiant requis (email ou téléphone)");
-        }
-
-        Optional<Utilisateur> utilisateur = identifiant.contains("@")
-                ? utilisateurRepository.findByEmail(identifiant)
-                : utilisateurRepository.findByTel(identifiant);
-
+            return ResponseEntity.badRequest().body("Identifiant requis (email ou téléphone)"); }
+        Optional<Utilisateur> utilisateur =
+                identifiant.contains("@") ? utilisateurRepository.findByEmail(identifiant) : utilisateurRepository.findByTel(identifiant);
         if (utilisateur.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Utilisateur introuvable");
-        }
-
-        String code = otpService.genererCode();
-        otpService.enregistrerOtp(identifiant, code);
-
+        } String code = otpService.genererCode(); otpService.enregistrerOtp(identifiant, code);
         if (identifiant.contains("@")) {
             emailService.sendMail(
-                    identifiant,
-                    "Code de vérification",
+                    identifiant, "Code de vérification",
                     String.format("Bonjour %s,\n\nVotre code de vérification est : %s\n\nCordialement,\nL'équipe CreaFund",
-                            utilisateur.get().getPrenom(), code)
-            );
+                            utilisateur.get().getPrenom(), code) );
         } else {
             notificationService.envoyerCode(identifiant, code);
         }
-
         return ResponseEntity.ok("Code OTP envoyé à" + identifiant);
     }
+
 
     // ✅ 2. Vérification du code OTP + génération du JWT
     @PostMapping("/verifier-otp")
@@ -112,6 +101,5 @@ public class AuthController {
 
         return ResponseEntity.ok(utilisateur.get());
     }
-
 
 }
