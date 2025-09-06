@@ -12,8 +12,8 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/sene_db
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: 1234
-      SMTP_USERNAME: creafundmali@gmail
-      SMTP_PASSWORD: kvoq fvsn suti wlug
+      Smtp_Username: creafundmali@gmail
+      Smtp_password: kvoqfvsnsutiwlug
     depends_on:
       - mysql-db
 
