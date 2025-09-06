@@ -47,10 +47,19 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Utilisateur introuvable");
         } String code = otpService.genererCode(); otpService.enregistrerOtp(identifiant, code);
         if (identifiant.contains("@")) {
-            emailService.sendMail(
-                    identifiant, "Code de vérification",
-                    String.format("Bonjour %s,\n\nVotre code de vérification est : %s\n\nCordialement,\nL'équipe CreaFund",
-                            utilisateur.get().getPrenom(), code) );
+            try {
+                emailService.sendMail(
+                        identifiant,
+                        "Code de vérification",
+                        String.format("Bonjour %s,\n\nVotre code de vérification est : %s\\n\\nCordialement,\\nL'équipe CreaFund",
+                                utilisateur.get().getPrenom(), code)
+                );
+            } catch (Exception e) {
+                e.printStackTrace();
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Erreur email: " + e.getClass().getName() + " - " + e.getMessage());
+            }
+
         } else {
             notificationService.envoyerCode(identifiant, code);
         }
