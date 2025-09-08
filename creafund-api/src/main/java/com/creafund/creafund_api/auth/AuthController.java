@@ -51,7 +51,12 @@ public class AuthController {
                 emailService.sendMail(
                         identifiant,
                         "Code de vérification",
-                        String.format("Bonjour %s,\n\nVotre code de vérification est : %s\\n\\nCordialement,\\nL'équipe CreaFund",
+                        String.format("""
+                                      Bonjour %s, \
+                                      Votre code de vérification est : %s \
+                                      Cordialement,\
+                                      L'équipe CreaFund
+                                      """,
                                 utilisateur.get().getPrenom(), code)
                 );
             } catch (Exception e) {

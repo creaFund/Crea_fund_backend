@@ -13,7 +13,7 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: 1234
       Smtp_Username: creafundmali@gmail
-      Smtp_password: kvoqfvsnsutiwlug
+      Smtp_password: ardlaegszxyfrapn
     depends_on:
       - mysql-db
 

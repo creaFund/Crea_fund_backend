@@ -10,7 +10,6 @@ public class Media {
     @Id
     @GeneratedValue
     private Long id;
-
     private String url;     // lien S3
     private String fileName;
     private String type;    // image, video, pdf...
