@@ -97,10 +97,6 @@ public class AuthController {
         String token = jwtUtils.generateToken(identifiant);
         Map<String, String> response = new HashMap<>();
         response.put("token", token);
-
-        // Nettoyage du code après vérification
-        otpService.supprimerOtp(identifiant);
-
         return ResponseEntity.ok(response);
     }
 
