@@ -45,7 +45,10 @@ public class AuthController {
                 identifiant.contains("@") ? utilisateurRepository.findByEmail(identifiant) : utilisateurRepository.findByTel(identifiant);
         if (utilisateur.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Utilisateur introuvable");
-        } String code = otpService.genererCode(); otpService.enregistrerOtp(identifiant, code);
+        }
+        String code = otpService.genererCode();
+        otpService.enregistrerOtp(identifiant, code);
+        notificationService.envoyerCode(identifiant, code);
         if (identifiant.contains("@")) {
             try {
                 emailService.sendMail(
