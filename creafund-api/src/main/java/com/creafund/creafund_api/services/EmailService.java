@@ -9,11 +9,14 @@ import org.springframework.stereotype.Service;
 public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
+
     public void sendMail(String destinataire, String sujet, String contenu) {
         SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("no-reply@tondomaine.com"); // ⚠️ adresse validée dans AWS SES
         message.setTo(destinataire);
         message.setSubject(sujet);
         message.setText(contenu);
         mailSender.send(message);
-    };
+    }
 }
+
