@@ -55,12 +55,12 @@ public class AuthController {
                         identifiant,
                         "Code de vérification",
                         String.format("""
-                                      Bonjour %s, \
+                                      Bonjour , \
                                       Votre code de vérification est : %s \
                                       Cordialement,\
                                       L'équipe CreaFund
-                                      """,
-                                utilisateur.get().getPrenom(), code)
+                                      """
+                                , code)
                 );
             } catch (Exception e) {
                 e.printStackTrace();
