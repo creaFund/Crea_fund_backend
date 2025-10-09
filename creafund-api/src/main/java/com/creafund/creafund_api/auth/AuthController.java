@@ -6,7 +6,6 @@ import com.creafund.creafund_api.repository.UtilisateurRepository;
 import com.creafund.creafund_api.services.EmailService;
 import com.creafund.creafund_api.services.NotificationService;
 import com.creafund.creafund_api.services.OtpService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -18,18 +17,18 @@ import java.util.*;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    @Autowired
-    private EmailService emailService;
-
+    private final EmailService emailService;
     private final UtilisateurRepository utilisateurRepository;
     private final OtpService otpService;
     private final NotificationService notificationService;
     private final JwtUtils jwtUtils;
 
-    public AuthController(UtilisateurRepository utilisateurRepository,
+    public AuthController(EmailService emailService,
+                          UtilisateurRepository utilisateurRepository,
                           OtpService otpService,
                           NotificationService notificationService,
                           JwtUtils jwtUtils) {
+        this.emailService = emailService;
         this.utilisateurRepository = utilisateurRepository;
         this.otpService = otpService;
         this.notificationService = notificationService;
@@ -40,38 +39,37 @@ public class AuthController {
     public ResponseEntity<?> demanderOtp(@RequestBody Map<String, String> body) {
         String identifiant = body.get("identifiant");
         if (identifiant == null || identifiant.trim().isEmpty()) {
-            return ResponseEntity.badRequest().body("Identifiant requis (email ou téléphone)"); }
-        Optional<Utilisateur> utilisateur =
-                identifiant.contains("@") ? utilisateurRepository.findByEmail(identifiant) : utilisateurRepository.findByTel(identifiant);
-        if (utilisateur.isEmpty()) {
+            return ResponseEntity.badRequest().body("Identifiant requis (email ou téléphone)");
+        }
+
+        Optional<Utilisateur> utilisateurOpt = identifiant.contains("@")
+                ? utilisateurRepository.findByEmail(identifiant)
+                : utilisateurRepository.findByTel(identifiant);
+
+        if (utilisateurOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Utilisateur introuvable");
         }
+
         String code = otpService.genererCode();
         otpService.enregistrerOtp(identifiant, code);
-        notificationService.envoyerCode(identifiant, code);
+
         if (identifiant.contains("@")) {
             try {
-                emailService.sendMail(
-                        identifiant,
-                        "Code de vérification",
-                        String.format("""
-                                      Bonjour , \
-                                      Votre code de vérification est : %s \
-                                      Cordialement,\
-                                      L'équipe CreaFund
-                                      """
-                                , code)
-                );
+                String sujet = "Votre code de vérification CreaFund";
+                String contenu = String.format("Bonjour,\n\nVotre code de vérification est : %s\n\nCordialement,\nL'équipe CreaFund", code);
+                emailService.sendMail(identifiant, sujet, contenu);
             } catch (Exception e) {
-                e.printStackTrace();
+                // Log l'erreur pour le débogage
+                e.printStackTrace(); 
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body("Erreur email: " + e.getClass().getName() + " - " + e.getMessage());
+                        .body("Erreur lors de l'envoi de l'e-mail: " + e.getMessage());
             }
-
         } else {
+            // Supposant que notificationService envoie des SMS ou autres notifications
             notificationService.envoyerCode(identifiant, code);
         }
-        return ResponseEntity.ok("Code OTP envoyé à" + identifiant);
+
+        return ResponseEntity.ok("Code de vérification envoyé à " + identifiant);
     }
 
 
