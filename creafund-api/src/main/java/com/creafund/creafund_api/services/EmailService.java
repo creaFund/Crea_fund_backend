@@ -1,19 +1,17 @@
 package com.creafund.creafund_api.services;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.ses.SesClient;
-import software.amazon.awssdk.services.ses.model.Body;
-import software.amazon.awssdk.services.ses.model.Content;
-import software.amazon.awssdk.services.ses.model.Destination;
-import software.amazon.awssdk.services.ses.model.Message;
-import software.amazon.awssdk.services.ses.model.SendEmailRequest;
-import software.amazon.awssdk.services.ses.model.SesException;
+import software.amazon.awssdk.services.ses.model.*;
 
 @Service
 public class EmailService {
 
     private final SesClient sesClient;
+    private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
     @Autowired
     public EmailService(SesClient sesClient) {
@@ -22,28 +20,17 @@ public class EmailService {
 
     public void sendMail(String destinataire, String sujet, String contenu) {
         // ⚠️ Assurez-vous que cette adresse e-mail est vérifiée dans votre compte AWS SES.
-        String expediteur = "creafundmali@gmail.com"; 
+        String expediteur = "creafundmali@gmail.com";
+
+        logger.info("Tentative d'envoi d'e-mail via AWS SES à : {}", destinataire);
 
         Destination destination = Destination.builder()
                 .toAddresses(destinataire)
                 .build();
 
-        Content sujetContent = Content.builder()
-                .data(sujet)
-                .build();
-
-        Content contenuContent = Content.builder()
-                .data(contenu)
-                .build();
-
-        Body body = Body.builder()
-                .text(contenuContent)
-                .build();
-
-        Message message = Message.builder()
-                .subject(sujetContent)
-                .body(body)
-                .build();
+        Content sujetContent = Content.builder().data(sujet).build();
+        Body body = Body.builder().text(Content.builder().data(contenu).build()).build();
+        Message message = Message.builder().subject(sujetContent).body(body).build();
 
         SendEmailRequest request = SendEmailRequest.builder()
                 .source(expediteur)
@@ -52,11 +39,14 @@ public class EmailService {
                 .build();
 
         try {
-            sesClient.sendEmail(request);
-            System.out.println("Email sent successfully via AWS SES!");
+            SendEmailResponse response = sesClient.sendEmail(request);
+            logger.info("E-mail envoyé avec succès ! Message ID: {}", response.messageId());
         } catch (SesException e) {
-            System.err.println("Failed to send email via AWS SES: " + e.awsErrorDetails().errorMessage());
-            // Vous pouvez ajouter une gestion d'erreur plus robuste ici
+            logger.error("Échec de l'envoi de l'e-mail via AWS SES. Code d'erreur AWS: {} | Message: {}", 
+                         e.awsErrorDetails().errorCode(), 
+                         e.awsErrorDetails().errorMessage(), e);
+            // Remonter l'exception pour que le contrôleur puisse la gérer
+            throw new RuntimeException("Erreur lors de l'envoi de l'e-mail via SES", e);
         }
     }
 }
