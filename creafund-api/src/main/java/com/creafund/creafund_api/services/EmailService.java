@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import sendinblue.ApiException;
 import sibApi.TransactionalEmailsApi;
 import sibModel.CreateSmtpEmail;
 import sibModel.SendSmtpEmail;
@@ -24,7 +25,6 @@ public class EmailService {
     }
 
     public void sendMail(String destinataire, String sujet, String contenu) {
-        // ⚠️ Assurez-vous que cet expéditeur est configuré et validé dans votre compte Brevo.
         String expediteurEmail = "creafundmali@gmail.com";
         String expediteurNom = "CreaFund";
 
@@ -41,9 +41,14 @@ public class EmailService {
         try {
             CreateSmtpEmail result = apiInstance.sendTransacEmail(email);
             logger.info("E-mail envoyé avec succès via Brevo ! Message ID: {}", result.getMessageId());
-        } catch (Exception e) {
-            logger.error("Échec de l'envoi de l'e-mail via Brevo: {}", e.getMessage(), e);
+        } catch (ApiException e) {
+            // Log spécifique pour l'API Brevo pour obtenir plus de détails
+            logger.error("Échec de l'envoi de l'e-mail via Brevo. Code de statut: {} | Corps de la réponse: {}", 
+                         e.getCode(), e.getResponseBody(), e);
             throw new RuntimeException("Erreur lors de l'envoi de l'e-mail via Brevo", e);
+        } catch (Exception e) {
+            logger.error("Échec inattendu de l'envoi de l'e-mail via Brevo: {}", e.getMessage(), e);
+            throw new RuntimeException("Erreur inattendue lors de l'envoi de l'e-mail via Brevo", e);
         }
     }
 }
