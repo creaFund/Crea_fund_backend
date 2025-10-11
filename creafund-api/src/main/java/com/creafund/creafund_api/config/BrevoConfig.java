@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import sibApi.TransactionalEmailsApi;
-import sibModel.ApiClient;
-import sibModel.auth.ApiKeyAuth;
+import sendinblue.ApiClient;
+import sendinblue.auth.ApiKeyAuth;
 
 @Configuration
 public class BrevoConfig {
