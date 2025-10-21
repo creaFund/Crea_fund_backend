@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -42,6 +43,7 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     @Override
+    @Transactional
     public void run(String... args) throws Exception {
         logger.info("Début de l'initialisation des données...");
 
@@ -83,13 +85,13 @@ public class DataInitializer implements CommandLineRunner {
         if (utilisateurRepository.count() == 0) {
             Utilisateur admin = new Utilisateur();
             admin.setNom("Admin");
-            admin.setPrenom("Super");
-            admin.setEmail("admin@creafund.com");
+            admin.setPrenom("creafund");
+            admin.setEmail("creafundmali@gmail.com");
             admin.setMotDePasse(passwordEncoder.encode("password")); // Changez ce mot de passe !
             admin.setDateInscription(LocalDate.now());
             admin.setStatutVerification(true);
             utilisateurRepository.save(admin);
-            logger.info("Utilisateur admin par défaut créé avec l'email 'admin@creafund.com'.");
+            logger.info("Utilisateur admin par défaut créé avec l'email 'creafundmali@gmail.com'.");
         }
 
         logger.info("Initialisation des données terminée.");
