@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -53,5 +54,21 @@ public class Utilisateur {
     @Override
     public int hashCode() {
         return 31;
+    }
+
+    public void setEmail(String email) {
+    }
+
+    public void setNom(String nom) {
+    }
+
+    public void setPrenom(String prenom) {
+    }
+
+    public void setMotDePasse(String motDePasse) {
+    }
+
+    public void setRoles(HashSet<Role> roles) {
+
     }
 }
