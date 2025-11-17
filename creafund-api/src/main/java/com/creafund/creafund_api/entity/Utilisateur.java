@@ -55,20 +55,4 @@ public class Utilisateur {
     public int hashCode() {
         return 31;
     }
-
-    public void setEmail(String email) {
-    }
-
-    public void setNom(String nom) {
-    }
-
-    public void setPrenom(String prenom) {
-    }
-
-    public void setMotDePasse(String motDePasse) {
-    }
-
-    public void setRoles(HashSet<Role> roles) {
-
-    }
 }

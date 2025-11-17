@@ -18,9 +18,4 @@ public class Categorie {
 
     @Column(nullable = false, unique = true)
     private String nom;
-
-    // Setter manuel pour corriger le problème de build
-    public void setNom(String nom) {
-        this.nom = nom;
-    }
 }
