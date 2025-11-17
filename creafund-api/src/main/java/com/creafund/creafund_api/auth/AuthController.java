@@ -100,14 +100,19 @@ public class AuthController {
 
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Accès non autorisé. Veuillez fournir un token JWT valide.");
+        }
+
         String identifiant = (String) authentication.getPrincipal();
 
         Optional<Utilisateur> utilisateur = identifiant.contains("@")
                 ? utilisateurRepository.findByEmail(identifiant)
+                // Vous pourriez vouloir ajouter une recherche par téléphone ici aussi si c'est pertinent
                 : utilisateurRepository.findByTel(identifiant);
 
         if (utilisateur.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Utilisateur introuvable");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Utilisateur introuvable pour le token fourni.");
         }
 
         return ResponseEntity.ok(utilisateur.get());
